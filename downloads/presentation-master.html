@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Präsentations-Master · Beispiel</title>
+<meta name="description" content="Konfigurierbarer Präsentations-Master für Offline-Workshops." />
+<style>
+  :root{
+    --bg:#0b1020;
+    --surface:#1d2a44;
+    --text:#e6edf7;
+    --muted:#94a3b8;
+    --primary:#5bbad5;
+    --secondary:#2f4368;
+    --accent:#7df9b9;
+    --link:#7dd3fc;
+    --hover:#bae6fd;
+    --ok:#22c55e;
+    --warn:#f97316;
+    --danger:#ef4444;
+    --font-heading:'Manrope', system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-body:'Inter', system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono:"JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --font-h1-size:88px;
+    --font-h1-weight:800;
+    --font-h2-size:46px;
+    --font-h2-weight:700;
+    --font-h3-size:28px;
+    --font-h3-weight:700;
+    --font-h4-size:22px;
+    --font-h4-weight:700;
+    --font-body-size:22px;
+    --font-body-weight:400;
+    --font-small-size:16px;
+    --font-small-weight:500;
+    --font-stat-label-size:18px;
+    --font-stat-label-weight:600;
+    --font-stat-value-size:64px;
+    --font-stat-value-weight:800;
+    --font-stat-unit-size:24px;
+    --font-stat-unit-weight:600;
+    --radius:18px;
+    --radius-lg:24px;
+    --shadow:0 8px 32px rgba(5,10,30,.38);
+    --slide-w:1600;
+    --slide-h:900;
+    --gap:20px;
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(120% 160% at 20% 20%, rgba(255,255,255,.06), transparent 60%),
+      linear-gradient(180deg, rgba(255,255,255,.04) 0%, rgba(0,0,0,.18) 65%),
+      var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    font-size:var(--font-body-size);
+    font-weight:var(--font-body-weight);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .stage{position:relative;transform-origin:top left;transition:transform .25s ease;}
+  .slide{
+    width:calc(var(--slide-w)*1px);
+    height:calc(var(--slide-h)*1px);
+    box-sizing:border-box;
+    border-radius:var(--radius-lg);
+    background:
+      radial-gradient(1200px 800px at 20% -10%,rgba(91,186,213,.12),transparent 60%),
+      radial-gradient(900px 600px at 120% 40%,rgba(125,249,185,.18),transparent 65%),
+      var(--surface);
+    box-shadow:var(--shadow);
+    padding:64px 72px;
+    display:none;
+    position:relative;
+    overflow:hidden;
+  }
+  .slide[aria-hidden="false"]{display:block;}
+  .slide::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background:linear-gradient(140deg,rgba(255,255,255,.08) 0%,rgba(255,255,255,0) 45%,rgba(0,0,0,.18) 100%);
+    mix-blend-mode:overlay;
+    opacity:.32;
+  }
+  h1,h2,h3,h4{margin:0 0 .5em 0;font-family:var(--font-heading);letter-spacing:.2px;}
+  h1{font-size:var(--font-h1-size);font-weight:var(--font-h1-weight);line-height:1.04;}
+  h2{font-size:var(--font-h2-size);font-weight:var(--font-h2-weight);line-height:1.1;}
+  h3{font-size:var(--font-h3-size);font-weight:var(--font-h3-weight);color:var(--muted);}
+  h4{font-size:var(--font-h4-size);font-weight:var(--font-h4-weight);color:var(--muted);}
+  p,li{font-size:var(--font-body-size);font-weight:var(--font-body-weight);line-height:1.5;}
+  p{margin:.25em 0 .75em 0;}
+  ul,ol{margin:.4em 0 .9em 0;padding-left:1.2em;}
+  li{margin:.2em 0;}
+  a{color:var(--link);}
+  a:hover,a:focus{color:var(--hover);}
+  .muted{color:var(--muted);}
+  .small{font-size:var(--font-small-size);font-weight:var(--font-small-weight);}
+  .eyebrow{display:inline-block;font-size:14px;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;}
+  .tag{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:14px;font-weight:600;letter-spacing:.3px;color:#f8fafc;margin-bottom:18px;}
+  .logo{position:absolute;top:24px;left:32px;display:flex;align-items:center;gap:12px;z-index:2;}
+  .logo img{width:44px;height:44px;border-radius:12px;border:2px solid rgba(255,255,255,.18);background:rgba(255,255,255,.04);}
+  .logo .brand{font-size:15px;font-weight:600;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;}
+  .title-xl{font-size:var(--font-h1-size);font-weight:var(--font-h1-weight);line-height:1.04;}
+  .accent{color:var(--accent);}
+  .primary{color:var(--primary);}
+  .grid{display:grid;gap:28px;}
+  .cols-2{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .cols-3{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .cols-4{grid-template-columns:repeat(4,minmax(0,1fr));}
+  .card{position:relative;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:var(--radius);padding:22px 24px;backdrop-filter:blur(6px);}
+  .card.highlight{border-left:6px solid var(--accent);padding-left:18px;}
+  .card.muted{background:rgba(15,23,42,.28);border-color:rgba(148,163,184,.24);}
+  .card.ghost{background:rgba(255,255,255,.02);border-color:rgba(255,255,255,.08);}
+  .stat-label{color:var(--muted);font-size:var(--font-stat-label-size);font-weight:var(--font-stat-label-weight);margin-bottom:.25em;letter-spacing:.02em;}
+  .stat-value,.kpi,.stat{font-size:var(--font-stat-value-size);font-weight:var(--font-stat-value-weight);line-height:1.05;margin-bottom:.2em;display:flex;align-items:baseline;flex-wrap:wrap;gap:.35em;}
+  .stat-unit{font-size:var(--font-stat-unit-size);font-weight:var(--font-stat-unit-weight);color:color-mix(in srgb,var(--muted) 70%, #ffffff 30%);margin-left:.25em;}
+  .list-check li{list-style:none;padding-left:1.6em;position:relative;}
+  .list-check li::before{content:"✔";position:absolute;left:0;top:0;color:var(--accent);font-weight:700;}
+  .list-cross li{list-style:none;padding-left:1.6em;position:relative;}
+  .list-cross li::before{content:"✕";position:absolute;left:0;top:0;color:var(--danger);font-weight:700;}
+  blockquote{margin:1.4em 0;padding:22px 28px;border-left:6px solid var(--accent);background:rgba(255,255,255,.05);border-radius:var(--radius);font-size:28px;font-style:italic;}
+  code,pre{font-family:var(--font-mono);}
+  .footer{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-top:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(2,8,23,0) 0%,rgba(2,8,23,.55) 100%);color:var(--muted);font-size:15px;z-index:2;}
+  .footer strong{color:#fff;font-weight:600;}
+  .footer .page{color:#cbd5f5;font-weight:600;}
+  .background-image{position:absolute;inset:0;z-index:0;opacity:.18;object-fit:cover;}
+  .content{position:relative;z-index:1;}
+  .pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);font-size:15px;font-weight:600;color:#f8fafc;}
+  .toolbar{position:fixed;right:22px;top:18px;display:flex;gap:10px;padding:9px 12px;border-radius:16px;backdrop-filter:saturate(1.4) blur(10px);background:rgba(8,13,28,.72);border:1px solid rgba(255,255,255,.16);box-shadow:var(--shadow);opacity:0;transform:translateY(-10px);transition:opacity .2s ease,transform .2s ease;z-index:60;}
+  .toolbar.visible{opacity:1;transform:translateY(0);}
+  .btn{appearance:none;border:1px solid rgba(255,255,255,.28);background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.04));color:#e6edf7;padding:8px 12px;border-radius:12px;cursor:pointer;font-weight:600;font-size:14px;display:flex;align-items:center;gap:8px;transition:transform .2s ease,box-shadow .2s ease;}
+  .btn:hover,.btn:focus{transform:translateY(-1px);box-shadow:0 10px 24px rgba(5,10,30,.28);}
+  .btn svg{width:18px;height:18px;}
+  .navbtn{position:fixed;top:50%;transform:translateY(-50%);width:46px;height:76px;border-radius:18px;background:rgba(8,13,28,.62);border:1px solid rgba(255,255,255,.18);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:55;transition:transform .2s ease,box-shadow .2s ease;}
+  .navbtn:hover,.navbtn:focus{transform:translateY(-50%) scale(1.02);box-shadow:0 12px 28px rgba(5,10,30,.32);}
+  .nav-left{left:16px;}
+  .nav-right{right:16px;}
+  .help{position:fixed;left:24px;bottom:22px;font-size:14px;color:var(--muted);z-index:55;background:rgba(8,13,28,.72);padding:10px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(8px);}
+  .kbd{display:inline-block;padding:.12rem .45rem;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);font-weight:700;font-size:.95em;}
+  .wizard-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(4,10,24,.78);backdrop-filter:blur(18px);padding:24px;z-index:120;transition:opacity .25s ease,visibility .25s ease;}
+  .wizard-overlay[aria-hidden="true"]{opacity:0;visibility:hidden;pointer-events:none;}
+  .wizard-panel{width:min(1080px,100%);max-height:calc(100% - 32px);background:rgba(12,20,42,.92);border:1px solid rgba(148,163,184,.25);border-radius:22px;box-shadow:0 28px 48px rgba(3,8,23,.55);display:flex;flex-direction:column;overflow:hidden;color:#e2e8f0;}
+  .wizard-header{padding:24px 28px;border-bottom:1px solid rgba(148,163,184,.18);display:flex;flex-direction:column;gap:8px;background:linear-gradient(180deg,rgba(255,255,255,.06) 0%,rgba(12,20,42,.92) 100%);}
+  .wizard-header h2{margin:0;font-size:28px;letter-spacing:.2px;}
+  .wizard-header p{margin:0;font-size:16px;color:var(--muted);}
+  .wizard-body{overflow:auto;padding:0 28px 28px;display:flex;flex-direction:column;gap:24px;}
+  .wizard-step{display:none;flex-direction:column;gap:18px;}
+  .wizard-step.active{display:flex;}
+  .wizard-step h3{margin:0;font-size:20px;color:#f8fafc;}
+  .wizard-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+  .wizard-grid-compact{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));}
+  .wizard-field{display:flex;flex-direction:column;gap:6px;background:rgba(255,255,255,.04);border:1px solid rgba(148,163,184,.18);border-radius:14px;padding:14px 16px;}
+  .wizard-field label{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;}
+  .wizard-field input,
+  .wizard-field textarea,
+  .wizard-field select{width:100%;padding:8px 10px;border-radius:10px;border:1px solid rgba(148,163,184,.25);background:rgba(15,23,42,.78);color:#f8fafc;font-size:15px;}
+  .wizard-field textarea{min-height:84px;resize:vertical;}
+  .wizard-field input[type="color"]{padding:0;height:44px;cursor:pointer;}
+  .wizard-small{font-size:13px;color:var(--muted);}
+  .wizard-footer{padding:20px 28px;border-top:1px solid rgba(148,163,184,.18);display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(0deg,rgba(255,255,255,.04) 0%,rgba(12,20,42,.92) 100%);}
+  .wizard-actions{display:flex;align-items:center;gap:12px;}
+  .wizard-btn{appearance:none;border:1px solid rgba(148,163,184,.35);background:rgba(15,23,42,.85);color:#f8fafc;padding:10px 16px;border-radius:12px;font-weight:600;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;transition:transform .2s ease,box-shadow .2s ease;}
+  .wizard-btn.primary{background:linear-gradient(180deg,var(--accent),color-mix(in srgb,var(--accent) 65%,#06102a 35%));border-color:color-mix(in srgb,var(--accent) 65%,#06102a 35%);color:#041021;}
+  .wizard-btn.ghost{background:rgba(148,163,184,.12);border-color:rgba(148,163,184,.32);}
+  .wizard-btn:hover,.wizard-btn:focus{transform:translateY(-1px);box-shadow:0 12px 26px rgba(3,8,23,.45);}
+  .wizard-stepper{display:flex;gap:10px;padding:0 28px 12px 28px;}
+  .wizard-stepper button{flex:1;border:none;background:rgba(148,163,184,.12);color:var(--muted);padding:10px 12px;border-radius:10px;font-weight:600;cursor:pointer;}
+  .wizard-stepper button.active{background:var(--accent);color:#041021;}
+  .wizard-list{display:flex;flex-direction:column;gap:14px;}
+  .wizard-card{border:1px solid rgba(148,163,184,.22);border-radius:14px;padding:14px 16px;background:rgba(255,255,255,.04);display:flex;flex-direction:column;gap:12px;}
+  .wizard-card header{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .wizard-card h4{margin:0;font-size:16px;color:#f8fafc;}
+  .wizard-card-headline{display:flex;align-items:center;gap:10px;}
+  .wizard-toggle{appearance:none;border:none;background:rgba(148,163,184,.2);color:#f8fafc;width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:background .2s ease,transform .2s ease;}
+  .wizard-toggle:hover,.wizard-toggle:focus{background:rgba(148,163,184,.32);}
+  .wizard-inline{display:flex;gap:12px;flex-wrap:wrap;}
+  .wizard-inline .wizard-field{flex:1;min-width:160px;}
+  .wizard-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(148,163,184,.15);border-radius:999px;padding:4px 10px;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);}
+  .wizard-chip{appearance:none;border:1px dashed rgba(148,163,184,.35);background:rgba(148,163,184,.15);color:#e2e8f0;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+  .wizard-chip:hover,.wizard-chip:focus{border-style:solid;}
+  .wizard-card-body{display:flex;flex-direction:column;gap:12px;}
+  .wizard-card.is-collapsed .wizard-card-body{display:none;}
+  .wizard-card.is-collapsed .wizard-toggle{transform:rotate(-90deg);}
+  .wizard-empty{padding:24px;border:1px dashed rgba(148,163,184,.35);border-radius:16px;text-align:center;color:var(--muted);font-size:15px;}
+  .wizard-divider{height:1px;background:rgba(148,163,184,.18);margin:8px 0;}
+  @media print{
+    @page{size:16in 9in;margin:12mm;}
+    body{background:#fff;color:#111;}
+    .app{position:relative;padding:0;}
+    .stage{transform:none!important;}
+    .slide{display:block!important;page-break-after:always;box-shadow:none;background:#fff;color:#0f172a;}
+    .slide::after{display:none;}
+    .logo img{border-color:rgba(15,23,42,.18);}
+    .footer{background:#f8fafc;border-top:1px solid #d5ddeb;color:#475569;}
+    .toolbar,.navbtn,.help{display:none!important;}
+  }
+  :focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 70%,transparent);outline-offset:3px;}
+</style>
+</head>
+<body>
+<!--
+  💡 Präsentations-Master (Standalone)
+  ----------------------------------
+  1. Bearbeiten Sie die Datei "presentation-config.js" für Inhalte, Farben & Layouts
+     oder nutzen Sie den integrierten Assistenten (Toolbar → Wizard).
+  2. Öffnen Sie die HTML-Datei lokal im Browser – alles funktioniert offline.
+  3. Export (HTML mit eingebetteter Konfiguration), PDF-Druck oder Vollbild lassen
+     sich über die Toolbar bzw. Tastenkürzel steuern.
+-->
+<div class="app" aria-label="Präsentation">
+  <div class="stage" id="stage" role="region" aria-live="polite"></div>
+</div>
+<div class="toolbar" id="toolbar" role="toolbar" aria-label="Präsentationswerkzeuge">
+  <button class="btn" id="btnPrev" aria-label="Vorherige Folie (←)" title="Vorherige Folie (←)">⟵ Zurück</button>
+  <button class="btn" id="btnNext" aria-label="Nächste Folie (→)" title="Nächste Folie (→)">Weiter ⟶</button>
+  <button class="btn" id="btnFull" aria-label="Vollbild (f)" title="Vollbild (f)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg>
+    Vollbild
+  </button>
+  <button class="btn" id="btnExport" aria-label="Export (e)" title="Export (e)">Export</button>
+  <button class="btn" id="btnWizard" aria-label="Wizard öffnen (w)" title="Wizard öffnen (w)">Wizard</button>
+  <button class="btn" id="btnPrint" aria-label="PDF/Druck (p)" title="PDF/Druck (p)">PDF</button>
+</div>
+<button class="navbtn nav-left" id="navLeft" aria-label="Vorherige Folie (←)">⟵</button>
+<button class="navbtn nav-right" id="navRight" aria-label="Nächste Folie (→)">⟶</button>
+<div class="help" id="helpDialog" aria-live="polite">Tasten: <span class="kbd">←</span>/<span class="kbd">→</span> · <span class="kbd">f</span> Vollbild · <span class="kbd">p</span> PDF · <span class="kbd">e</span> Export</div>
+
+<div class="wizard-overlay" id="configWizard" aria-hidden="true">
+  <div class="wizard-panel" role="dialog" aria-modal="true" aria-labelledby="wizardTitle">
+    <div class="wizard-header">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div>
+          <h2 id="wizardTitle">Präsentations-Wizard</h2>
+          <p>Geführte Eingabe für Meta-Daten, Design und Inhalte. Änderungen werden erst nach „Übernehmen“ aktiv.</p>
+        </div>
+        <button class="wizard-btn ghost" data-action="close" type="button">Schließen</button>
+      </div>
+    </div>
+    <div class="wizard-stepper" role="tablist">
+      <button type="button" class="active" data-step-target="0" role="tab" aria-controls="wizardStepBasics">Allgemein</button>
+      <button type="button" data-step-target="1" role="tab" aria-controls="wizardStepTheme">Design</button>
+      <button type="button" data-step-target="2" role="tab" aria-controls="wizardStepSlides">Slides</button>
+    </div>
+    <div class="wizard-body">
+      <section class="wizard-step active" data-step="0" id="wizardStepBasics" role="tabpanel">
+        <div class="wizard-card" data-basics-section="meta" data-section-label="Allgemeine Angaben">
+          <header>
+            <div class="wizard-card-headline">
+              <h4>Allgemeine Angaben</h4>
+            </div>
+            <button class="wizard-toggle" type="button" data-action="toggle-basics-section" data-section="meta" aria-expanded="true" aria-controls="wizardBasicsMetaBody" aria-label="Bereich einklappen" title="Einklappen">▾</button>
+          </header>
+          <div class="wizard-card-body" id="wizardBasicsMetaBody">
+            <div class="wizard-grid">
+              <div class="wizard-field">
+                <label for="wizardTitleInput">Titel</label>
+                <input id="wizardTitleInput" type="text" data-path="meta.title" placeholder="Seitentitel" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardDescInput">Beschreibung</label>
+                <textarea id="wizardDescInput" data-path="meta.description" placeholder="Kurzbeschreibung"></textarea>
+              </div>
+              <div class="wizard-field">
+                <label for="wizardDateInput">Datum</label>
+                <input id="wizardDateInput" type="text" data-path="meta.date" placeholder="auto oder 2024-12-31" />
+                <span class="wizard-small">„auto“ nutzt das aktuelle Datum (Zeitzone/Locale siehe unten).</span>
+              </div>
+              <div class="wizard-field">
+                <label for="wizardLocaleInput">Locale</label>
+                <input id="wizardLocaleInput" type="text" data-path="meta.locale" placeholder="de-DE" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardTimezoneInput">Zeitzone</label>
+                <input id="wizardTimezoneInput" type="text" data-path="meta.timezone" placeholder="Europe/Berlin" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-card" data-basics-section="branding" data-section-label="Branding">
+          <header>
+            <div class="wizard-card-headline">
+              <h4>Branding</h4>
+            </div>
+            <button class="wizard-toggle" type="button" data-action="toggle-basics-section" data-section="branding" aria-expanded="true" aria-controls="wizardBasicsBrandingBody" aria-label="Bereich einklappen" title="Einklappen">▾</button>
+          </header>
+          <div class="wizard-card-body" id="wizardBasicsBrandingBody">
+            <div class="wizard-grid">
+              <div class="wizard-field">
+                <label for="wizardBrandName">Brand Name</label>
+                <input id="wizardBrandName" type="text" data-path="brand.name" placeholder="Organisation" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardBrandLogo">Logo-URL oder Data-URI</label>
+                <textarea id="wizardBrandLogo" data-path="brand.logo.src" placeholder="https://…"></textarea>
+              </div>
+              <div class="wizard-field">
+                <label for="wizardBrandAlt">Logo Alt-Text</label>
+                <input id="wizardBrandAlt" type="text" data-path="brand.logo.alt" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardBrandToggle">Logo anzeigen</label>
+                <select id="wizardBrandToggle" data-path="brand.showOnSlides">
+                  <option value="true">Ja</option>
+                  <option value="false">Nein</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-card" data-basics-section="toolbar" data-section-label="Toolbar &amp; Footer">
+          <header>
+            <div class="wizard-card-headline">
+              <h4>Toolbar &amp; Footer</h4>
+            </div>
+            <button class="wizard-toggle" type="button" data-action="toggle-basics-section" data-section="toolbar" aria-expanded="true" aria-controls="wizardBasicsToolbarBody" aria-label="Bereich einklappen" title="Einklappen">▾</button>
+          </header>
+          <div class="wizard-card-body" id="wizardBasicsToolbarBody">
+            <div class="wizard-grid">
+              <div class="wizard-field">
+                <label for="wizardFilename">Export-Dateiname</label>
+                <input id="wizardFilename" type="text" data-path="toolbar.filename" placeholder="presentation.html" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardFooterLeft">Footer links (HTML erlaubt)</label>
+                <textarea id="wizardFooterLeft" data-path="footer.left"></textarea>
+              </div>
+              <div class="wizard-field">
+                <label for="wizardFooterRight">Footer rechts</label>
+                <textarea id="wizardFooterRight" data-path="footer.right" placeholder="Seite {current}/{total}"></textarea>
+                <span class="wizard-small">Platzhalter: {current} = aktuelle Folie, {total} = Anzahl Folien.</span>
+              </div>
+            </div>
+            <div class="wizard-grid">
+              <div class="wizard-field">
+                <label for="wizardToggleFullscreen">Vollbild-Button</label>
+                <select id="wizardToggleFullscreen" data-path="toolbar.showFullscreen">
+                  <option value="true">Anzeigen</option>
+                  <option value="false">Ausblenden</option>
+                </select>
+              </div>
+              <div class="wizard-field">
+                <label for="wizardToggleExport">Export-Button</label>
+                <select id="wizardToggleExport" data-path="toolbar.showExport">
+                  <option value="true">Anzeigen</option>
+                  <option value="false">Ausblenden</option>
+                </select>
+              </div>
+              <div class="wizard-field">
+                <label for="wizardTogglePrint">PDF-Button</label>
+                <select id="wizardTogglePrint" data-path="toolbar.showPrint">
+                  <option value="true">Anzeigen</option>
+                  <option value="false">Ausblenden</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-card" data-basics-section="help" data-section-label="Hilfe &amp; Hinweise">
+          <header>
+            <div class="wizard-card-headline">
+              <h4>Hilfe &amp; Hinweise</h4>
+            </div>
+            <button class="wizard-toggle" type="button" data-action="toggle-basics-section" data-section="help" aria-expanded="true" aria-controls="wizardBasicsHelpBody" aria-label="Bereich einklappen" title="Einklappen">▾</button>
+          </header>
+          <div class="wizard-card-body" id="wizardBasicsHelpBody">
+            <div class="wizard-grid">
+              <div class="wizard-field">
+                <label for="wizardHelpToggle">Hilfe-Overlay</label>
+                <select id="wizardHelpToggle" data-path="help.show">
+                  <option value="true">Anzeigen</option>
+                  <option value="false">Ausblenden</option>
+                </select>
+              </div>
+              <div class="wizard-field" style="grid-column:1/-1;">
+                <label for="wizardHelpText">Hilfe-Text (HTML)</label>
+                <textarea id="wizardHelpText" data-path="help.text"></textarea>
+                <span class="wizard-small">Tipp: Verwenden Sie <code>&lt;span class=&quot;kbd&quot;&gt;</code> für Tastaturhinweise.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="wizard-step" data-step="1" id="wizardStepTheme" role="tabpanel" aria-hidden="true">
+        <div class="wizard-card" data-theme-section="fonts" data-section-label="Schriften">
+          <header>
+            <div class="wizard-card-headline">
+              <h4>Schriften</h4>
+            </div>
+            <button class="wizard-toggle" type="button" data-action="toggle-theme-section" data-section="fonts" aria-expanded="true" aria-controls="wizardThemeFontsBody" aria-label="Bereich einklappen" title="Einklappen">▾</button>
+          </header>
+          <div class="wizard-card-body" id="wizardThemeFontsBody">
+            <div class="wizard-grid">
+              <div class="wizard-field">
+                <label for="wizardFontHeading">Schrift (Headline)</label>
+                <input id="wizardFontHeading" type="text" data-path="theme.fonts.heading" placeholder="'Manrope', sans-serif" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardFontBody">Schrift (Body)</label>
+                <input id="wizardFontBody" type="text" data-path="theme.fonts.body" placeholder="'Inter', sans-serif" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardFontMono">Schrift (Mono)</label>
+                <input id="wizardFontMono" type="text" data-path="theme.fonts.mono" placeholder="'JetBrains Mono', monospace" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-card" data-theme-section="typography" data-section-label="Typografie">
+          <header>
+            <div class="wizard-card-headline">
+              <h4>Typografie</h4>
+            </div>
+            <button class="wizard-toggle" type="button" data-action="toggle-theme-section" data-section="typography" aria-expanded="true" aria-controls="wizardThemeTypographyBody" aria-label="Bereich einklappen" title="Einklappen">▾</button>
+          </header>
+          <div class="wizard-card-body" id="wizardThemeTypographyBody">
+            <div class="wizard-grid wizard-grid-compact">
+              <div class="wizard-field">
+                <label for="wizardH1Size">H1 Größe (px)</label>
+                <input id="wizardH1Size" type="number" min="8" step="1" data-path="theme.typography.h1.size" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardH1Weight">H1 Gewicht</label>
+                <input id="wizardH1Weight" type="number" min="100" step="50" data-path="theme.typography.h1.weight" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardH2Size">H2 Größe (px)</label>
+                <input id="wizardH2Size" type="number" min="8" step="1" data-path="theme.typography.h2.size" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardH2Weight">H2 Gewicht</label>
+                <input id="wizardH2Weight" type="number" min="100" step="50" data-path="theme.typography.h2.weight" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardH3Size">H3 Größe (px)</label>
+                <input id="wizardH3Size" type="number" min="8" step="1" data-path="theme.typography.h3.size" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardH3Weight">H3 Gewicht</label>
+                <input id="wizardH3Weight" type="number" min="100" step="50" data-path="theme.typography.h3.weight" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardH4Size">H4 Größe (px)</label>
+                <input id="wizardH4Size" type="number" min="8" step="1" data-path="theme.typography.h4.size" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardH4Weight">H4 Gewicht</label>
+                <input id="wizardH4Weight" type="number" min="100" step="50" data-path="theme.typography.h4.weight" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardBodySize">Fließtext Größe (px)</label>
+                <input id="wizardBodySize" type="number" min="8" step="1" data-path="theme.typography.body.size" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardBodyWeight">Fließtext Gewicht</label>
+                <input id="wizardBodyWeight" type="number" min="100" step="50" data-path="theme.typography.body.weight" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardSmallSize">Kleingedrucktes Größe (px)</label>
+                <input id="wizardSmallSize" type="number" min="6" step="1" data-path="theme.typography.small.size" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardSmallWeight">Kleingedrucktes Gewicht</label>
+                <input id="wizardSmallWeight" type="number" min="100" step="50" data-path="theme.typography.small.weight" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardStatLabelSize">Highlight-Label Größe (px)</label>
+                <input id="wizardStatLabelSize" type="number" min="6" step="1" data-path="theme.typography.statLabel.size" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardStatLabelWeight">Highlight-Label Gewicht</label>
+                <input id="wizardStatLabelWeight" type="number" min="100" step="50" data-path="theme.typography.statLabel.weight" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardStatValueSize">Highlight-Wert Größe (px)</label>
+                <input id="wizardStatValueSize" type="number" min="8" step="1" data-path="theme.typography.statValue.size" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardStatValueWeight">Highlight-Wert Gewicht</label>
+                <input id="wizardStatValueWeight" type="number" min="100" step="50" data-path="theme.typography.statValue.weight" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardStatUnitSize">Highlight-Einheit Größe (px)</label>
+                <input id="wizardStatUnitSize" type="number" min="6" step="1" data-path="theme.typography.statUnit.size" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardStatUnitWeight">Highlight-Einheit Gewicht</label>
+                <input id="wizardStatUnitWeight" type="number" min="100" step="50" data-path="theme.typography.statUnit.weight" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="wizard-card" data-theme-section="colors" data-section-label="Farben">
+          <header>
+            <div class="wizard-card-headline">
+              <h4>Farben</h4>
+            </div>
+            <button class="wizard-toggle" type="button" data-action="toggle-theme-section" data-section="colors" aria-expanded="true" aria-controls="wizardThemeColorsBody" aria-label="Bereich einklappen" title="Einklappen">▾</button>
+          </header>
+          <div class="wizard-card-body" id="wizardThemeColorsBody">
+            <div class="wizard-grid">
+              <div class="wizard-field">
+                <label for="wizardColorBackground">Hintergrund</label>
+                <input id="wizardColorBackground" type="color" data-path="theme.colors.background" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardColorSurface">Fläche</label>
+                <input id="wizardColorSurface" type="color" data-path="theme.colors.surface" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardColorText">Text</label>
+                <input id="wizardColorText" type="color" data-path="theme.colors.text" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardColorMuted">Muted</label>
+                <input id="wizardColorMuted" type="color" data-path="theme.colors.muted" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardColorPrimary">Primary</label>
+                <input id="wizardColorPrimary" type="color" data-path="theme.colors.primary" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardColorSecondary">Sekundär</label>
+                <input id="wizardColorSecondary" type="color" data-path="theme.colors.secondary" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardColorAccent">Akzent</label>
+                <input id="wizardColorAccent" type="color" data-path="theme.colors.accent" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardColorLink">Link</label>
+                <input id="wizardColorLink" type="color" data-path="theme.colors.link" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardColorHover">Hover</label>
+                <input id="wizardColorHover" type="color" data-path="theme.colors.hover" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardColorOk">OK</label>
+                <input id="wizardColorOk" type="color" data-path="theme.colors.ok" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardColorWarn">Warnung</label>
+                <input id="wizardColorWarn" type="color" data-path="theme.colors.warn" />
+              </div>
+              <div class="wizard-field">
+                <label for="wizardColorDanger">Fehler</label>
+                <input id="wizardColorDanger" type="color" data-path="theme.colors.danger" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="wizard-step" data-step="2" id="wizardStepSlides" role="tabpanel" aria-hidden="true">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <h3>Slides & Inhalte</h3>
+          <div class="wizard-inline" style="justify-content:flex-end;align-items:center;">
+            <span class="wizard-small">Neue Folie:</span>
+            <button class="wizard-chip" type="button" data-action="add-slide" data-type="cover">Cover</button>
+            <button class="wizard-chip" type="button" data-action="add-slide" data-type="content">Content</button>
+          </div>
+        </div>
+        <div id="wizardSlidesList" class="wizard-list" aria-live="polite"></div>
+      </section>
+    </div>
+    <div class="wizard-footer">
+      <div class="wizard-small">Speichern Sie nach dem Bearbeiten die neue <code>presentation-config.js</code> über „Konfiguration herunterladen“.</div>
+      <div class="wizard-actions">
+        <button class="wizard-btn ghost" type="button" data-action="download">Konfiguration herunterladen</button>
+        <button class="wizard-btn ghost" type="button" data-action="prev">Zurück</button>
+        <button class="wizard-btn" type="button" data-action="next">Weiter</button>
+        <button class="wizard-btn primary" type="button" data-action="apply">Übernehmen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="./presentation-config.js"></script>
+<script src="./presentation-master.js" data-app></script>
+</body>
+</html>
